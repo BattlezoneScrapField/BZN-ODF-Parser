@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BZN Multi-File Compare - Structure</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-2: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #ff7b00;
+      --accent-2: #ff9900;
+      --border: #374151;
+      --good: #10b981;
+      --warn: #eab308;
+      --bad: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #0b1020 0%, #111827 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .hero {
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, rgba(255, 123, 0, 0.14), rgba(255, 255, 255, 0.02));
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .content {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .controls,
+    .toolbar,
+    .summary-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    .button,
+    .file-label,
+    select,
+    input[type="text"] {
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font: inherit;
+    }
+
+    .button,
+    .file-label {
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+    }
+
+    .file-label {
+      background: linear-gradient(135deg, rgba(255,123,0,0.22), rgba(255,153,0,0.18));
+      border-color: rgba(255,153,0,0.45);
+    }
+
+    .button:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .status,
+    .panel,
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(31, 41, 55, 0.72);
+    }
+
+    .status,
+    .panel {
+      padding: 14px 16px;
+    }
+
+    .stat {
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    .file-list {
+      display: grid;
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .file-chip {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .file-chip small {
+      color: var(--muted);
+    }
+
+    .mode-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mode-tab.active {
+      border-color: rgba(255,153,0,0.45);
+      background: linear-gradient(135deg, rgba(255,123,0,0.22), rgba(255,153,0,0.18));
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+
+    table {
+      width: 100%;
+      min-width: 840px;
+      border-collapse: collapse;
+      background: rgba(17, 24, 39, 0.78);
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      background: rgba(31, 41, 55, 0.96);
+      z-index: 1;
+    }
+
+    tbody tr:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .muted { color: var(--muted); }
+    .good { color: #d1fae5; }
+    .warn { color: #fde68a; }
+    .bad { color: #fecaca; }
+
+    @media (max-width: 720px) {
+      .wrap { padding: 14px; }
+      .content { padding: 16px; }
+      .controls,
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .button,
+      .file-label,
+      select,
+      input[type="text"] { width: 100%; }
+      .file-chip { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="hero">
+        <h1>BZN Multi-File Compare</h1>
+        <p>Load multiple ASCII .BZN files, compare shared and unique ODFs, and inspect counts across maps.</p>
+      </div>
+
+      <div class="content">
+        <div class="controls">
+          <label for="fileInput" class="file-label">Choose .BZN Files</label>
+          <input id="fileInput" type="file" accept=".bzn" multiple />
+          <button id="clearBtn" class="button" disabled>Clear Files</button>
+          <button id="downloadComparisonBtn" class="button" disabled>Download Comparison CSV</button>
+        </div>
+
+        <div id="status" class="status">Select two or more ASCII .BZN files to compare.</div>
+
+        <div class="summary-grid">
+          <div class="stat">
+            <div class="stat-label">Loaded Maps</div>
+            <div id="loadedMapCount" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Unique ODFs Across All Maps</div>
+            <div id="globalUniqueCount" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Shared ODFs In All Maps</div>
+            <div id="sharedCount" class="stat-value">0</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">ODFs Unique To One Map</div>
+            <div id="exclusiveCount" class="stat-value">0</div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <strong>Loaded Files</strong>
+          <ul id="fileList" class="file-list" style="margin-top: 12px;">
+            <li class="muted">No files loaded yet.</li>
+          </ul>
+        </div>
+
+        <div class="toolbar">
+          <div class="mode-tabs">
+            <button class="button mode-tab active" data-mode="all">Full Comparison</button>
+            <button class="button mode-tab" data-mode="shared">Shared Only</button>
+            <button class="button mode-tab" data-mode="unique">Unique Only</button>
+            <button class="button mode-tab" data-mode="partial">Partial Matches</button>
+          </div>
+
+          <input id="searchInput" type="text" placeholder="Filter ODF names..." />
+
+          <select id="sortSelect">
+            <option value="name-asc">Sort: Name (A to Z)</option>
+            <option value="name-desc">Sort: Name (Z to A)</option>
+            <option value="presence-desc">Sort: Present In Most Maps</option>
+            <option value="presence-asc">Sort: Present In Fewest Maps</option>
+            <option value="total-desc">Sort: Total Quantity (High to Low)</option>
+            <option value="total-asc">Sort: Total Quantity (Low to High)</option>
+          </select>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr id="resultsHeadRow">
+                <th>ODF Name</th>
+                <th>Maps Present</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr>
+                <td colspan="3" class="muted">Load multiple .BZN files to begin comparison.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      files: [],
+      comparisonRows: [],
+      mode: 'all'
+    };
+
+    const fileInput = document.getElementById('fileInput');
+    const clearBtn = document.getElementById('clearBtn');
+    const downloadComparisonBtn = document.getElementById('downloadComparisonBtn');
+    const statusEl = document.getElementById('status');
+    const fileListEl = document.getElementById('fileList');
+    const loadedMapCountEl = document.getElementById('loadedMapCount');
+    const globalUniqueCountEl = document.getElementById('globalUniqueCount');
+    const sharedCountEl = document.getElementById('sharedCount');
+    const exclusiveCountEl = document.getElementById('exclusiveCount');
+    const resultsHeadRow = document.getElementById('resultsHeadRow');
+    const resultsBody = document.getElementById('resultsBody');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const modeTabs = Array.from(document.querySelectorAll('.mode-tab'));
+
+    function setStatus(message) {
+      statusEl.textContent = message;
+    }
+
+    function extractObjClasses(text) {
+      const counts = new Map();
+      const regex = /objClass\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s\r\n;]+))/gi;
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        const value = (match[1] || match[2] || match[3] || '').trim();
+        if (!value) continue;
+        counts.set(value, (counts.get(value) || 0) + 1);
+      }
+
+      return counts;
+    }
+
+    async function parseBznFile(file) {
+      const text = await file.text();
+      return {
+        name: file.name,
+        size: file.size,
+        counts: extractObjClasses(text)
+      };
+    }
+
+    function buildComparisonRows(parsedFiles) {
+      const allNames = new Set();
+      parsedFiles.forEach(file => {
+        file.counts.forEach((_, name) => allNames.add(name));
+      });
+
+      const rows = Array.from(allNames).map(name => {
+        const perFile = {};
+        let mapsPresent = 0;
+        let total = 0;
+
+        parsedFiles.forEach(file => {
+          const count = file.counts.get(name) || 0;
+          perFile[file.name] = count;
+          total += count;
+          if (count > 0) mapsPresent += 1;
+        });
+
+        return {
+          odfName: name,
+          perFile,
+          total,
+          mapsPresent,
+          isShared: mapsPresent === parsedFiles.length,
+          isExclusive: mapsPresent === 1,
+          isPartial: mapsPresent > 1 && mapsPresent < parsedFiles.length
+        };
+      });
+
+      return rows;
+    }
+
+    function getVisibleRows() {
+      const filter = searchInput.value.trim().toLowerCase();
+      let rows = [...state.comparisonRows];
+
+      if (state.mode === 'shared') rows = rows.filter(row => row.isShared);
+      if (state.mode === 'unique') rows = rows.filter(row => row.isExclusive);
+      if (state.mode === 'partial') rows = rows.filter(row => row.isPartial);
+
+      if (filter) {
+        rows = rows.filter(row => row.odfName.toLowerCase().includes(filter));
+      }
+
+      rows.sort((a, b) => {
+        switch (sortSelect.value) {
+          case 'name-desc':
+            return b.odfName.localeCompare(a.odfName);
+          case 'presence-desc':
+            return b.mapsPresent - a.mapsPresent || a.odfName.localeCompare(b.odfName);
+          case 'presence-asc':
+            return a.mapsPresent - b.mapsPresent || a.odfName.localeCompare(b.odfName);
+          case 'total-desc':
+            return b.total - a.total || a.odfName.localeCompare(b.odfName);
+          case 'total-asc':
+            return a.total - b.total || a.odfName.localeCompare(b.odfName);
+          case 'name-asc':
+          default:
+            return a.odfName.localeCompare(b.odfName);
+        }
+      });
+
+      return rows;
+    }
+
+    function renderFileList() {
+      if (!state.files.length) {
+        fileListEl.innerHTML = '<li class="muted">No files loaded yet.</li>';
+        return;
+      }
+
+      fileListEl.innerHTML = state.files.map((file, index) => `
+        <li class="file-chip">
+          <div>
+            <strong>${file.name}</strong><br>
+            <small>${file.counts.size} unique ODFs</small>
+          </div>
+          <small>${(file.size / 1024).toFixed(1)} KB</small>
+          <button class="button" onclick="removeFile(${index})">Remove</button>
+        </li>
+      `).join('');
+    }
+
+    function renderHead() {
+      const fileHeaders = state.files.map(file => `<th>${file.name}</th>`).join('');
+      resultsHeadRow.innerHTML = `
+        <th>ODF Name</th>
+        <th>Maps Present</th>
+        <th>Total</th>
+        ${fileHeaders}
+      `;
+    }
+
+    function renderTable() {
+      const rows = getVisibleRows();
+      const colspan = 3 + state.files.length;
+
+      if (!state.files.length) {
+        resultsHeadRow.innerHTML = '<th>ODF Name</th><th>Maps Present</th><th>Total</th>';
+        resultsBody.innerHTML = `<tr><td colspan="3" class="muted">Load multiple .BZN files to begin comparison.</td></tr>`;
+        return;
+      }
+
+      renderHead();
+
+      if (!rows.length) {
+        resultsBody.innerHTML = `<tr><td colspan="${colspan}" class="muted">No rows match the current view.</td></tr>`;
+        return;
+      }
+
+      resultsBody.innerHTML = rows.map(row => {
+        const perFileCells = state.files.map(file => {
+          const count = row.perFile[file.name] || 0;
+          return `<td>${count}</td>`;
+        }).join('');
+
+        return `
+          <tr>
+            <td>${row.odfName}</td>
+            <td>${row.mapsPresent}/${state.files.length}</td>
+            <td>${row.total}</td>
+            ${perFileCells}
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateSummary() {
+      loadedMapCountEl.textContent = String(state.files.length);
+      globalUniqueCountEl.textContent = String(state.comparisonRows.length);
+      sharedCountEl.textContent = String(state.comparisonRows.filter(row => row.isShared).length);
+      exclusiveCountEl.textContent = String(state.comparisonRows.filter(row => row.isExclusive).length);
+    }
+
+    function updateButtons() {
+      const hasFiles = state.files.length > 0;
+      const hasComparison = state.files.length >= 2;
+      clearBtn.disabled = !hasFiles;
+      downloadComparisonBtn.disabled = !hasComparison;
+    }
+
+    function rebuildComparison() {
+      state.comparisonRows = buildComparisonRows(state.files);
+      updateSummary();
+      updateButtons();
+      renderFileList();
+      renderTable();
+
+      if (state.files.length < 2) {
+        setStatus('Select at least two ASCII .BZN files to compare commonalities.');
+      } else {
+        setStatus(`Comparison ready. Loaded ${state.files.length} maps and ${state.comparisonRows.length} unique ODFs across them.`);
+      }
+    }
+
+    async function addFiles(fileList) {
+      const bznFiles = Array.from(fileList).filter(file => file.name.toLowerCase().endsWith('.bzn'));
+
+      if (!bznFiles.length) {
+        setStatus('No valid .BZN files were selected.');
+        return;
+      }
+
+      setStatus(`Reading ${bznFiles.length} file(s)...`);
+
+      for (const file of bznFiles) {
+        const alreadyLoaded = state.files.some(existing => existing.name === file.name && existing.size === file.size);
+        if (alreadyLoaded) continue;
+
+        const parsed = await parseBznFile(file);
+        state.files.push(parsed);
+      }
+
+      rebuildComparison();
+    }
+
+    function removeFile(index) {
+      state.files.splice(index, 1);
+      rebuildComparison();
+    }
+
+    window.removeFile = removeFile;
+
+    fileInput.addEventListener('change', async (event) => {
+      await addFiles(event.target.files || []);
+      fileInput.value = '';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      state.files = [];
+      state.comparisonRows = [];
+      searchInput.value = '';
+      rebuildComparison();
+    });
+
+    searchInput.addEventListener('input', renderTable);
+    sortSelect.addEventListener('change', renderTable);
+
+    modeTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        state.mode = tab.dataset.mode;
+        modeTabs.forEach(button => button.classList.remove('active'));
+        tab.classList.add('active');
+        renderTable();
+      });
+    });
+
+    downloadComparisonBtn.addEventListener('click', () => {
+      if (state.files.length < 2) return;
+
+      const rows = getVisibleRows();
+      const headers = ['ODF Name', 'Maps Present', 'Total', ...state.files.map(file => file.name)];
+      const csvRows = [headers.join(',')];
+
+      rows.forEach(row => {
+        const line = [
+          row.odfName,
+          `${row.mapsPresent}/${state.files.length}`,
+          row.total,
+          ...state.files.map(file => row.perFile[file.name] || 0)
+        ];
+
+        csvRows.push(line.map(value => {
+          const text = String(value ?? '');
+          return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+        }).join(','));
+      });
+
+      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'bzn_multi_compare.csv';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    rebuildComparison();
+  </script>
+</body>
+</html>

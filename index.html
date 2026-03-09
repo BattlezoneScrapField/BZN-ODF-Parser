@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+  <title>BZN ODF Parser</title>
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="wrap">
+    <nav class="breadcrumb">
+      <a href="https://battlezonescrapfield.github.io/">Battlezone Scrap Field</a> / BZN ODF Parser
+    </nav>
+    <div class="card">
+      <div class="hero">
+        <h1><img src="icon.png" class="title-icon" alt="icon"> BZN Object (ODF) Parser</h1>
+        <p>
+          Load a map's <code>.BZN</code> file (saved in ASCII), to better learn about the objects <code>(.ODF)</code> that exist within it. Get started by using the button to choose a <code>.BZN</code> file, or simply drag and drop it below.
+        </p>
+      </div>
+
+      <div class="content">
+        <div class="drop-zone" id="dropZone">
+          <div class="controls">
+            <label for="fileInput" class="file-label">Choose .BZN File</label>
+            <input id="fileInput" type="file" accept=".bzn" />
+            <button id="downloadCsvBtn" class="button" disabled>Download CSV</button>
+            <button id="copyBtn" class="button" disabled>Copy Results</button>
+
+            <a href="./data/example.bzn" download>
+              <button id="exampleBtn" class="button">Use Test BZN</button>
+            </a>
+
+          </div>
+
+          <div class="drop-zone-text">
+            <i class="bi bi-file-earmark-arrow-up"></i>
+            <span>Drag and drop any .BZN (ASCII) file here.</span>
+          </div>
+        </div>
+
+        <div class="search-row">
+          <input id="searchInput" type="text" placeholder="Filter ODFs..." />
+          <select id="sortSelect">
+            <option value="count-desc">Sort: Count (High to Low)</option>
+            <option value="count-asc">Sort: Count (Low to High)</option>
+            <option value="name-asc">Sort: Name (A to Z)</option>
+            <option value="name-desc">Sort: Name (Z to A)</option>
+          </select>
+        </div>
+
+        <div class="meta">
+          <div class="stat">
+            <div class="label">Loaded File</div>
+            <div id="fileName" class="value">None</div>
+          </div>
+          <div class="stat">
+            <div class="label">Unique ODFs</div>
+            <div id="uniqueCount" class="value">0</div>
+          </div>
+          <div class="stat">
+            <div class="label">Total ODFs on Map</div>
+            <div id="totalCount" class="value">0</div>
+          </div>
+        </div>
+
+        <div id="status" class="status">Select an ASCII .BZN file to begin.</div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th></th> <!--TODO gonna add some icons here -->
+                <th>ODF Name</th>
+                <th>Quantity</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody">
+              <tr>
+                <td colspan="3" style="color: var(--muted);">No results yet.</td>
+                <!--TODO <td colspan="2" style="color: var(--muted);">No results yet.</td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="footer-note">
+          Parsing rule: matches lines or segments containing <code>objClass=VALUE</code> and counts each discovered value.
+          Quoted or unquoted values are supported.
+        </div>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h3>Battlezone</h3>
+          <p>Check out a variety of resources made by other Battlezone modders.</p>
+        </div>
+
+        <div class="footer-section">
+          <h3>Community</h3>
+          <ul class="footer-links">
+            <li><a href="https://www.discord.gg/battlezone-271066904284758027" target="_blank" rel="noopener noreferrer"><i class="bi bi-discord"></i> Battlezone Discord</a></li>
+            <li><a href="https://bzforum.matesfamily.org/" target="_blank" rel="noopener noreferrer"><i class="bi bi-people-fill"></i> Battlezone Forums</a></li>
+            <li><a href="https://battlezonescrapfield.github.io/BZCC-Website/" target="_blank" rel="noopener noreferrer"><i class="bi bi-controller"></i> Active BZCC Lobbies</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Resources</h3>
+          <ul class="footer-links">
+            <li><a href="bzscrap.org" target="_blank" rel="noopener noreferrer"><i class="bi bi-tools"></i> BZScrap.com</a></li>
+            <li><a href="https://battlezonescrapfield.github.io/" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i> Battlezone GitHub</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Get Help</h3>
+          <ul class="footer-links">
+            <li><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1423355866" target="_blank" rel="noopener noreferrer"><i class="bi bi-steam"></i> ODF Documentation</a></li>
+            <li><a href="https://steamcommunity.com/sharedfiles/filedetails/?id=3417282213" target="_blank" rel="noopener noreferrer"><i class="bi bi-steam"></i> BZCC Beta Patch</a></li>
+            <li><a href="https://steamcommunity.com/app/624970/guides/" target="_blank" rel="noopener noreferrer"><i class="bi bi-file-earmark-text"></i> More Helpful Guides</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        v2026.1 | © Copyright BattlezoneScrapField. All Rights Reserved.
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const DEFAULT_STATUS_TEXT = 'Select an ASCII .BZN file to begin.';
+    let statusResetTimer = null;
+
+    const fileInput = document.getElementById('fileInput');
+    const dropZone = document.getElementById('dropZone');
+    const fileNameEl = document.getElementById('fileName');
+    const uniqueCountEl = document.getElementById('uniqueCount');
+    const totalCountEl = document.getElementById('totalCount');
+    const statusEl = document.getElementById('status');
+    const resultsBody = document.getElementById('resultsBody');
+    const downloadCsvBtn = document.getElementById('downloadCsvBtn');
+    const copyBtn = document.getElementById('copyBtn');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+
+    let currentResults = [];
+    let currentFileName = '';
+
+    // function setStatus(message, good = false) {
+    //   if (statusResetTimer) {
+    //     clearTimeout(statusResetTimer);
+    //     statusResetTimer = null;
+    //   }
+
+    //   statusEl.textContent = message;
+    //   statusEl.className = good ? 'status good' : 'status';
+    // }
+
+    function setStatus(message, type = 'default') {
+      if (statusResetTimer) {
+        clearTimeout(statusResetTimer);
+        statusResetTimer = null;
+      }
+
+      let icon = '';
+
+      if (type === 'good') {
+        icon = '<i class="bi bi-check-circle-fill"></i>';
+        statusEl.className = 'status good';
+      }
+      else if (type === 'warning') {
+        icon = '<i class="bi bi-exclamation-triangle-fill"></i>';
+        statusEl.className = 'status warning';
+      }
+      else if (type === 'error') {
+        icon = '<i class="bi bi-x-circle-fill"></i>';
+        statusEl.className = 'status error';
+      }
+      else {
+        icon = '<i class="bi bi-info-circle"></i>';
+        statusEl.className = 'status';
+      }
+
+      statusEl.innerHTML = `
+        <span class="status-icon">${icon}</span>
+        <span class="status-text">${message}</span>
+      `;
+    }
+
+    function escapeCsv(value) {
+      const text = String(value ?? '');
+      return /[",\n]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    }
+
+    function extractObjClasses(text) {
+      const counts = new Map();
+
+      const regex = /objClass\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s\r\n;]+))/gi;
+      let match;
+
+      while ((match = regex.exec(text)) !== null) {
+        const value = (match[1] || match[2] || match[3] || '').trim();
+        if (!value) continue;
+        counts.set(value, (counts.get(value) || 0) + 1);
+      }
+
+      return Array.from(counts.entries()).map(([objClass, count]) => ({ objClass, count }));
+    }
+
+    function getFilteredSortedResults() {
+      const filter = searchInput.value.trim().toLowerCase();
+      const sortMode = sortSelect.value;
+
+      let rows = [...currentResults];
+
+      if (filter) {
+        rows = rows.filter(row => row.objClass.toLowerCase().includes(filter));
+      }
+
+      rows.sort((a, b) => {
+        switch (sortMode) {
+          case 'count-asc':
+            return a.count - b.count || a.objClass.localeCompare(b.objClass);
+          case 'name-asc':
+            return a.objClass.localeCompare(b.objClass);
+          case 'name-desc':
+            return b.objClass.localeCompare(a.objClass);
+          case 'count-desc':
+          default:
+            return b.count - a.count || a.objClass.localeCompare(b.objClass);
+        }
+      });
+
+      return rows;
+    }
+
+    function renderTable() {
+      const rows = getFilteredSortedResults();
+
+      if (!rows.length) {
+        resultsBody.innerHTML = '<tr><td colspan="2" style="color: var(--muted);">No matching objClass values found.</td></tr>';
+        return;
+      }
+
+      /*TODO resultsBody.innerHTML = rows.map(row => `
+        <tr>
+          <td>${row.objClass}</td>
+          <td>${row.count}</td>
+        </tr>
+      `).join('');*/
+
+      resultsBody.innerHTML = rows.map(row => {
+
+        const odf = row.objClass.toLowerCase();
+        const typeLetter = odf.length > 1 ? odf[1] : '';
+
+        let icon = '';
+
+        switch (typeLetter) {
+          case 'o':
+            icon = 'icons/object.png';
+            break;
+          case 'e':
+            icon = 'icons/extractor.png';
+            break;
+          case 'v':
+            icon = 'icons/vehicle.png';
+            break;
+          case 'b':
+            icon = 'icons/building.png';
+            break;
+          case 'p':
+            icon = 'icons/powerup.png';
+            break;
+          case 'c':
+            icon = 'icons/creature.png';
+            break;
+          case 'w':
+            icon = 'icons/weapon.png';
+            break;
+          default:
+            icon = 'icons/default.png';
+        }
+
+        return `
+          <tr>
+            <td class="odf-icon">
+              <img src="${icon}" alt="${typeLetter}" />
+            </td>
+            <td>${row.objClass}</td>
+            <td>${row.count}</td>
+          </tr>
+        `;
+      }).join('');
+
+    }
+
+    function updateStats() {
+      uniqueCountEl.textContent = String(currentResults.length);
+      totalCountEl.textContent = String(currentResults.reduce((sum, row) => sum + row.count, 0));
+    }
+
+    function updateButtons() {
+      const hasResults = currentResults.length > 0;
+      downloadCsvBtn.disabled = !hasResults;
+      copyBtn.disabled = !hasResults;
+    }
+
+    async function handleBznFile(file) {
+      if (!file) return;
+
+      if (!file.name.toLowerCase().endsWith('.bzn')) {
+        setStatus('Only .BZN files are supported.', 'error');
+        fileInput.value = '';
+        return;
+      }
+
+      currentFileName = file.name;
+      fileNameEl.textContent = currentFileName;
+      setStatus('Reading file...');
+
+      try {
+        const text = await file.text();
+        currentResults = extractObjClasses(text);
+        console.log('Parsed objClass results:', currentResults);
+
+        updateStats();
+        renderTable();
+        updateButtons();
+
+        if (currentResults.length === 0) {
+          setStatus('Finished reading file, but no objClass= entries were found. Make sure this is an ASCII .BZN file.', 'warning');
+        } else {
+          setStatus(
+            `BZN done! Found ${currentResults.reduce((sum, row) => sum + row.count, 0)} objClass entries across ${currentResults.length} unique values.`, 'good');
+        }
+      } catch (error) {
+        currentResults = [];
+        updateStats();
+        renderTable();
+        updateButtons();
+        setStatus('Could not read the file. ' + error.message, 'error');
+      }
+    }
+
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files?.[0];
+      await handleBznFile(file);
+    });
+
+    dropZone.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      dropZone.classList.add('drag-over');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag-over');
+    });
+
+    dropZone.addEventListener('drop', async (event) => {
+      event.preventDefault();
+      dropZone.classList.remove('drag-over');
+
+      const file = event.dataTransfer?.files?.[0];
+      if (!file) return;
+
+      await handleBznFile(file);
+    });
+
+    searchInput.addEventListener('input', renderTable);
+    sortSelect.addEventListener('change', renderTable);
+
+    downloadCsvBtn.addEventListener('click', () => {
+      const rows = getFilteredSortedResults();
+      const csv = [
+        'objClass,Quantity',
+        ...rows.map(row => `${escapeCsv(row.objClass)},${row.count}`)
+      ].join('\n');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      const baseName = currentFileName.replace(/\.[^.]+$/, '') || 'bzn_objclass_results';
+
+      link.href = url;
+      link.download = `${baseName}_objclass_counts.csv`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      const rows = getFilteredSortedResults();
+      const text = rows.map(row => `${row.objClass}: ${row.count}`).join('\n');
+      const previousMessage = statusEl.textContent;
+      const previousWasGood = statusEl.classList.contains('good');
+
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus('Results copied to clipboard.', 'warning');
+
+        statusResetTimer = setTimeout(() => {
+          statusEl.textContent = previousMessage || DEFAULT_STATUS_TEXT;
+          statusEl.className = previousWasGood ? 'status good' : 'status';
+          statusResetTimer = null;
+        }, 3000); 
+      } catch (error) {
+        setStatus('Could not copy results to clipboard. ' + error.message, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

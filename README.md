@@ -1,6 +1,6 @@
 # BZN Object (ODF) Parser ♻️
 
-A lightweight web utility for analyzing **Battlezone / Battlezone II `.BZN` map files** that have been saved in **ASCII format**. The tool parses object definitions within the map and produces a summarized view of the **ODF (Object Definition File) instances** used on the map.
+A lightweight web utility for analyzing **Battlezone: Combat Commander / Battlezone II `.BZN` map files** that have been saved in **ASCII format**. The tool parses object definitions within the map and produces a summarized view of the **ODF (Object Definition File) instances** used on the map.
 
 The application runs entirely in the browser using **HTML, CSS, and vanilla JavaScript**. No backend services, build steps, or frameworks are required.
 
